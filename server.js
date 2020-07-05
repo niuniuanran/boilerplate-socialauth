@@ -86,9 +86,8 @@ mongo.connect(process.env.DATABASE, (err, db) => {
             }
             )
         );
-        app.get("/auth/github", (req, res) => {
-            passport.authenticate("github");
-        });
+        app.get("/auth/github",
+            passport.authenticate("github"));
 
         app
             .route("/auth/github/callback")
