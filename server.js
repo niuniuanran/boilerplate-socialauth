@@ -22,24 +22,24 @@ mongo.connect(process.env.DATABASE, (err, db) => {
         console.log('Database error: ' + err);
     } else {
         console.log('Successful database connection');
-      
+
         app.use(session({
-          secret: process.env.SESSION_SECRET,
-          resave: true,
-          saveUninitialized: true,
+            secret: process.env.SESSION_SECRET,
+            resave: true,
+            saveUninitialized: true,
         }));
         app.use(passport.initialize());
         app.use(passport.session());
-      
+
         function ensureAuthenticated(req, res, next) {
-          if (req.isAuthenticated()) {
-              return next();
-          }
-          res.redirect('/');
+            if (req.isAuthenticated()) {
+                return next();
+            }
+            res.redirect('/');
         };
 
         passport.serializeUser((user, done) => {
-          done(null, user.id);
+            done(null, user.id);
         });
 
         passport.deserializeUser((id, done) => {
@@ -51,45 +51,49 @@ mongo.connect(process.env.DATABASE, (err, db) => {
             );
         });
 
-      
+
         /*
         *  ADD YOUR CODE BELOW
         */
-      
-      
-      
-      
-      
-      
-      
+        app.get("/auth/github", (req, res)=>{
+            passport.authenticate('github');
+        })
+
+        app.route('/auth/github/callback')
+            .get(passport.authenticate('github', {failureRedirect: '/'}),
+                (req, res) => {
+                    res.redirect('/profile');
+                });
+
+
         /*
         *  ADD YOUR CODE ABOVE
         */
-      
-      
+
+
         app.route('/')
-          .get((req, res) => {
-            res.render(process.cwd() + '/views/pug/index');
-          });
+            .get((req, res) => {
+                res.render(process.cwd() + '/views/pug/index');
+            });
 
         app.route('/profile')
-          .get(ensureAuthenticated, (req, res) => {
-               res.render(process.cwd() + '/views/pug/profile', {user: req.user});
-          });
+            .get(ensureAuthenticated, (req, res) => {
+                res.render(process.cwd() + '/views/pug/profile', {user: req.user});
+            });
 
         app.route('/logout')
-          .get((req, res) => {
-              req.logout();
-              res.redirect('/');
-          });
+            .get((req, res) => {
+                req.logout();
+                res.redirect('/');
+            });
 
         app.use((req, res, next) => {
-          res.status(404)
-            .type('text')
-            .send('Not Found');
+            res.status(404)
+                .type('text')
+                .send('Not Found');
         });
-      
+
         app.listen(process.env.PORT || 3000, () => {
-          console.log("Listening on port " + process.env.PORT);
-        });  
-}});
+            console.log("Listening on port " + process.env.PORT);
+        });
+    }});
